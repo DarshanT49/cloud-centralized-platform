@@ -1,25 +1,27 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import {
   FileText,
   Image as ImageIcon,
+  Film,
   Archive,
   Copy,
-  Users
+  Users,
+  PlusCircle,
+  ExternalLink
 } from 'lucide-react';
-
-const initialSharedFiles = [
-  { id: 101, name: 'Q3_Performance_Review.pdf', size: '5.2 MB', type: 'doc', sharedBy: 'Sarah Jenkins', sharedWith: 'You', permission: 'Can Edit', date: 'Today' },
-  { id: 102, name: 'Design_System_v2_Tokens.png', size: '45.0 MB', type: 'image', sharedBy: 'You', sharedWith: 'Design Team (4)', permission: 'View Only', date: 'Oct 08, 2026' },
-  { id: 103, name: 'Product_Launch_Press_Kit.zip', size: '120.4 MB', type: 'archive', sharedBy: 'Marketing Lead', sharedWith: 'You', permission: 'Can Edit', date: 'Oct 03, 2026' }
-];
+import GoogleIcon from '../../components/GoogleIcon';
 
 const getFileIcon = (type) => {
   switch (type) {
     case 'image':
       return <ImageIcon size={18} color="#c084fc" />;
+    case 'video':
+      return <Film size={18} color="#fb7185" />;
     case 'archive':
       return <Archive size={18} color="#fbbf24" />;
+    case 'sheet':
+      return <FileText size={18} color="#34d399" />;
     default:
       return <FileText size={18} color="#60a5fa" />;
   }
@@ -27,17 +29,28 @@ const getFileIcon = (type) => {
 
 const Shared = () => {
   const outletCtx = useOutletContext() || {};
-  const { searchQuery = '', triggerToast = () => {} } = outletCtx;
-  const [sharedFiles] = useState(initialSharedFiles);
+  const {
+    searchQuery = '',
+    triggerToast = () => {},
+    googleFiles = [],
+    connectedAccounts = [],
+    onOpenConnectGoogleModal = () => {}
+  } = outletCtx;
 
   const copyShareLink = (fileName) => {
     navigator.clipboard?.writeText(`https://cloudvault.app/share/${encodeURIComponent(fileName)}`);
     triggerToast('Encrypted share link copied to clipboard!');
   };
 
-  const filtered = sharedFiles.filter(s =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const sharedFiles = useMemo(() => {
+    return googleFiles.filter(f => !f.trashed && f.shared);
+  }, [googleFiles]);
+
+  const filtered = useMemo(() => {
+    return sharedFiles.filter(s =>
+      s.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [sharedFiles, searchQuery]);
 
   return (
     <div className="shared-page">
@@ -46,16 +59,32 @@ const Shared = () => {
           Shared <span className="gradient-text">with Me</span>
         </h1>
         <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-          Files and assets shared by teammates and external collaborators
+          Collaborative and shared items synchronized across your connected Google Drives
         </p>
       </div>
 
-      {filtered.length === 0 ? (
+      {connectedAccounts.length === 0 ? (
+        <div className="glass-panel" style={{ padding: '60px 24px', textAlign: 'center' }}>
+          <GoogleIcon size={44} style={{ marginBottom: 14 }} />
+          <h3 style={{ color: '#fff', fontSize: '1.15rem', marginBottom: 6 }}>No Google Accounts Linked</h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.86rem', maxWidth: 440, margin: '0 auto 20px' }}>
+            Connect your Google accounts to view drives shared with you by teammates or collaborators.
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={onOpenConnectGoogleModal}
+          >
+            <PlusCircle size={16} />
+            <span>Connect Google Drive</span>
+          </button>
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="glass-panel" style={{ padding: '48px 20px', textAlign: 'center' }}>
           <Users size={36} color="var(--text-muted)" style={{ marginBottom: 12 }} />
           <h3 style={{ color: '#fff', fontSize: '1rem', marginBottom: 4 }}>No shared files found</h3>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>
-            {searchQuery ? `No files match "${searchQuery}"` : 'Files shared with your account will appear here.'}
+            {searchQuery ? `No files match "${searchQuery}"` : 'Files shared with your linked Google accounts will appear here.'}
           </p>
         </div>
       ) : (
@@ -64,8 +93,8 @@ const Shared = () => {
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
                 <th style={{ padding: '14px 20px', fontWeight: 600 }}>File Name</th>
-                <th style={{ padding: '14px 20px', fontWeight: 600 }}>Shared By</th>
-                <th style={{ padding: '14px 20px', fontWeight: 600 }}>Access Level</th>
+                <th style={{ padding: '14px 20px', fontWeight: 600 }}>Google Drive</th>
+                <th style={{ padding: '14px 20px', fontWeight: 600 }}>Folder</th>
                 <th style={{ padding: '14px 20px', fontWeight: 600 }}>Date</th>
                 <th style={{ padding: '14px 20px', fontWeight: 600, textAlign: 'right' }}>Actions</th>
               </tr>
@@ -83,23 +112,42 @@ const Shared = () => {
                 >
                   <td style={{ padding: '14px 20px', color: '#fff', display: 'flex', alignItems: 'center', gap: 12 }}>
                     {getFileIcon(s.type)}
-                    <span style={{ fontWeight: 500 }}>{s.name}</span>
+                    {s.webViewLink ? (
+                      <a
+                        href={s.webViewLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: '#fff', textDecoration: 'none', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = '#60a5fa'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = '#fff'; }}
+                        title="Open in Google Drive"
+                      >
+                        <span>{s.name}</span>
+                        <ExternalLink size={12} color="var(--text-muted)" />
+                      </a>
+                    ) : (
+                      <span style={{ fontWeight: 500 }}>{s.name}</span>
+                    )}
                   </td>
-                  <td style={{ padding: '14px 20px', color: 'var(--text-secondary)' }}>{s.sharedBy}</td>
                   <td style={{ padding: '14px 20px' }}>
                     <span
                       style={{
                         padding: '3px 8px',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
+                        borderRadius: 4,
+                        fontSize: '0.74rem',
                         fontWeight: 600,
-                        background: s.permission === 'Can Edit' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-                        color: s.permission === 'Can Edit' ? '#60a5fa' : '#34d399'
+                        background: 'rgba(66, 133, 244, 0.12)',
+                        color: s.accountColor || '#60a5fa',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4
                       }}
                     >
-                      {s.permission}
+                      <GoogleIcon size={12} />
+                      {s.accountName || 'Google Drive'}
                     </span>
                   </td>
+                  <td style={{ padding: '14px 20px', color: 'var(--text-secondary)' }}>{s.folder || 'Shared Root'}</td>
                   <td style={{ padding: '14px 20px', color: 'var(--text-muted)' }}>{s.date}</td>
                   <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                     <button

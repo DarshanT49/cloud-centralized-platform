@@ -106,29 +106,29 @@ const HomePage = () => {
           <div className="hero-badge-wrapper">
             <span className="badge">
               <Sparkles size={14} />
-              <span>Next-Generation Encrypted Cloud Storage</span>
+              <span>Unified Multi-Cloud Drive Aggregator</span>
             </span>
           </div>
 
           <h1 className="hero-title">
-            Store, Sync & Safeguard <br />
-            Your Files In <span className="gradient-text">Lightning Speed</span>
+            All Your Google Drives <br />
+            Unified In <span className="gradient-text">One Powerhouse</span>
           </h1>
 
           <p className="hero-subtitle">
-            Experience ultra-fast global file transfers, zero-knowledge end-to-end
-            encryption, and instant multi-device collaboration with complete privacy.
+            Connect multiple Google accounts (Personal, Workspace, Edu) into a single hub.
+            Search across drives, aggregate quotas, and transfer files between accounts without local server storage.
           </p>
 
           <div className="hero-cta-group">
             <Link to="/register" className="btn btn-primary btn-lg">
-              <span>Get 15 GB Free Storage</span>
+              <span>Connect Drives Free</span>
               <ArrowRight size={18} />
             </Link>
 
             <Link to="/dashboard" className="btn btn-secondary btn-lg">
               <HardDrive size={18} />
-              <span>Open Cloud Drive</span>
+              <span>Open Cloud Hub</span>
             </Link>
           </div>
 
@@ -453,10 +453,10 @@ const HomePage = () => {
       {/* 6. Call to Action Banner */}
       <section id="pricing" className="container cta-section">
         <div className="cta-banner">
-          <h2 className="cta-title">Upgrade Your Cloud Storage Today</h2>
+          <h2 className="cta-title">Unify All Your Google Drives Today</h2>
           <p className="cta-subtitle">
-            Join over 10 million individuals and teams safeguarding their files with
-            CloudVault. Get started with 15 GB free with no credit card required.
+            Join users who organize personal, work, and university accounts in one centralized CloudVault.
+            Aggregate your storage with zero local server disk hosting.
           </p>
           <div className="cta-buttons">
             <Link to="/register" className="btn btn-primary btn-lg">

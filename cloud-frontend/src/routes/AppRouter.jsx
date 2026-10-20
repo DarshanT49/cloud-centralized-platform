@@ -6,6 +6,7 @@ import ProtectedRoute from './ProtectedRoute';
 import HomePage from '../pages/home/HomePage';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
+import Dashboard from '../pages/dashboard/Dashboard';
 import MyFile from '../pages/myFile/MyFile';
 import Recent from '../pages/recent/Recent';
 import Shared from '../pages/shared/Shared';
@@ -59,7 +60,8 @@ const AppRouter = () => {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate to="my-files" replace />} />
+          <Route index element={<Dashboard />} />
+          <Route path="analytics" element={<Dashboard />} />
           <Route path="my-files" element={<MyFile />} />
           <Route path="recent" element={<Recent />} />
           <Route path="shared" element={<Shared />} />

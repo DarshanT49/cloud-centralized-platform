@@ -9,11 +9,12 @@ import { Navigate, useLocation } from 'react-router-dom';
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
 
-  // Check if currentUser session exists in localStorage
+  // Check if currentUser session and token exist in localStorage
   const isAuthenticated = () => {
     try {
+      const token = localStorage.getItem('token');
       const user = localStorage.getItem('currentUser');
-      return !!user && user !== 'null' && user !== 'undefined';
+      return !!token && !!user && user !== 'null' && user !== 'undefined';
     } catch {
       return false;
     }

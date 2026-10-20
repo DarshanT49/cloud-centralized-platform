@@ -8,20 +8,16 @@ public class UserSummaryDto {
     private String fullName;
     private String email;
     private String role;
-    private Long storageUsed;
-    private Long storageLimit;
     private LocalDateTime createdAt;
 
     public UserSummaryDto() {
     }
 
-    public UserSummaryDto(Long id, String fullName, String email, String role, Long storageUsed, Long storageLimit, LocalDateTime createdAt) {
+    public UserSummaryDto(Long id, String fullName, String email, String role, LocalDateTime createdAt) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
         this.role = role;
-        this.storageUsed = storageUsed;
-        this.storageLimit = storageLimit;
         this.createdAt = createdAt;
     }
 
@@ -55,22 +51,6 @@ public class UserSummaryDto {
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    public Long getStorageUsed() {
-        return storageUsed;
-    }
-
-    public void setStorageUsed(Long storageUsed) {
-        this.storageUsed = storageUsed;
-    }
-
-    public Long getStorageLimit() {
-        return storageLimit;
-    }
-
-    public void setStorageLimit(Long storageLimit) {
-        this.storageLimit = storageLimit;
     }
 
     public LocalDateTime getCreatedAt() {

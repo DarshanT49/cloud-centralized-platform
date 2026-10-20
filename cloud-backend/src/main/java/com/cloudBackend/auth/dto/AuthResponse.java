@@ -5,6 +5,7 @@ public class AuthResponse {
     private boolean success;
     private String message;
     private UserSummaryDto user;
+    private String token;
 
     public AuthResponse() {
     }
@@ -18,6 +19,13 @@ public class AuthResponse {
         this.success = success;
         this.message = message;
         this.user = user;
+    }
+
+    public AuthResponse(boolean success, String message, UserSummaryDto user, String token) {
+        this.success = success;
+        this.message = message;
+        this.user = user;
+        this.token = token;
     }
 
     public boolean isSuccess() {
@@ -42,5 +50,13 @@ public class AuthResponse {
 
     public void setUser(UserSummaryDto user) {
         this.user = user;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

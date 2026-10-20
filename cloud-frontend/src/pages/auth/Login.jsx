@@ -12,6 +12,8 @@ import {
   AlertCircle
 } from 'lucide-react';
 import GoogleIcon from '../../components/GoogleIcon';
+import authService from '../../services/authService';
+import { googleAccountsService } from '../../services/googleAccountsService';
 import './Auth.css';
 
 const Login = () => {
@@ -35,9 +37,9 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.email || !formData.password) {
+    if (!formData.email.trim() || !formData.password) {
       setStatusMessage({
         type: 'error',
         text: 'Please enter both your email address and password.'
@@ -48,55 +50,63 @@ const Login = () => {
     setIsLoading(true);
     setStatusMessage({ type: '', text: '' });
 
-    // Simulate authentication
-    setTimeout(() => {
-      setIsLoading(false);
-      const emailUsername = formData.email ? formData.email.split('@')[0] : 'Alex Rivera';
-      const formattedName = emailUsername.charAt(0).toUpperCase() + emailUsername.slice(1);
-      const user = {
-        fullName: formattedName,
+    try {
+      const response = await authService.login({
         email: formData.email,
-        role: 'PRO MEMBER',
-        storageUsed: '64.2 GB',
-        storageTotal: '100 GB',
-        storagePercent: 64
-      };
-      localStorage.setItem('currentUser', JSON.stringify(user));
+        password: formData.password
+      });
+
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+      }
+      if (response.user) {
+        localStorage.setItem('currentUser', JSON.stringify(response.user));
+      }
 
       setStatusMessage({
         type: 'success',
-        text: 'Authentication successful! Redirecting to your vault...'
+        text: response.message || 'Authentication successful! Redirecting to dashboard...'
       });
 
       setTimeout(() => {
         const destination = location.state?.from?.pathname || '/dashboard';
         navigate(destination, { replace: true });
-      }, 1000);
-    }, 1200);
+      }, 800);
+    } catch (err) {
+      setStatusMessage({
+        type: 'error',
+        text: err.message || 'Login failed. Please verify your credentials or server connection.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGoogleAuth = () => {
+  const handleGoogleAuth = async () => {
     setIsLoading(true);
-    const googleUser = {
-      fullName: 'Alex Rivera (Google)',
-      email: 'alex.rivera@gmail.com',
-      role: 'PRO MEMBER',
-      storageUsed: '64.2 GB',
-      storageTotal: '100 GB',
-      storagePercent: 64
-    };
-    localStorage.setItem('currentUser', JSON.stringify(googleUser));
-
     setStatusMessage({
       type: 'success',
-      text: 'Connecting with Google Account...'
+      text: 'Redirecting to Google sign in...'
     });
 
-    setTimeout(() => {
+    try {
+      const data = await googleAccountsService.getAuthorizeUrl('personal');
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        setStatusMessage({
+          type: 'error',
+          text: data?.error || 'Failed to initialize Google Sign-in.'
+        });
+        setIsLoading(false);
+      }
+    } catch (err) {
+      setStatusMessage({
+        type: 'error',
+        text: err.message || 'Error communicating with server.'
+      });
       setIsLoading(false);
-      const destination = location.state?.from?.pathname || '/dashboard';
-      navigate(destination, { replace: true });
-    }, 1400);
+    }
   };
 
   return (

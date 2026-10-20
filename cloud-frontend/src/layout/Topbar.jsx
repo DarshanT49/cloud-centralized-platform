@@ -16,14 +16,14 @@ import {
   Users,
   Trash2,
   Star,
-  CheckCircle2,
-  FileText
+  LayoutDashboard
 } from 'lucide-react';
+import GoogleIcon from '../components/GoogleIcon';
 
 const viewMetadata = {
-  '/dashboard': { title: 'My Files', icon: Folder },
-  '/dashboard/my-files': { title: 'My Files', icon: Folder },
-  '/dashboard/recent': { title: 'Recent Files', icon: Clock },
+  '/dashboard': { title: 'Dashboard', icon: LayoutDashboard },
+  '/dashboard/my-files': { title: 'Google Drive Files', icon: Folder },
+  '/dashboard/recent': { title: 'Recent Activity', icon: Clock },
   '/dashboard/shared': { title: 'Shared with Me', icon: Users },
   '/dashboard/trash': { title: 'Trash & Bin', icon: Trash2 },
   '/dashboard/starred': { title: 'Starred Files', icon: Star }
@@ -34,7 +34,12 @@ const Topbar = ({
   searchQuery,
   onSearchChange,
   currentUser,
-  onOpenUploadModal
+  connectedAccounts = [],
+  selectedAccountId = 'all',
+  onSelectAccount = () => {},
+  onOpenConnectGoogleModal = () => {},
+  onOpenUploadModal = () => {},
+  triggerToast = () => {}
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,19 +63,16 @@ const Topbar = ({
   }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
     navigate('/login', { replace: true });
   };
 
-  const currentMeta = viewMetadata[location.pathname] || { title: 'Cloud Drive', icon: HardDrive };
+  const currentMeta = viewMetadata[location.pathname] || { title: 'Dashboard', icon: LayoutDashboard };
   const PageIcon = currentMeta.icon;
 
-  const userInitials = (currentUser?.fullName || 'Alex Rivera')
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+  const displayName = currentUser?.fullName || currentUser?.email?.split('@')[0] || 'User';
+  const userInitials = displayName.slice(0, 2).toUpperCase();
 
   return (
     <header className="dashboard-topbar">
@@ -88,7 +90,7 @@ const Topbar = ({
         <div className="topbar-breadcrumb">
           <span className="breadcrumb-root">
             <HardDrive size={15} color="#38bdf8" />
-            <span>Drive</span>
+            <span>CloudVault</span>
           </span>
           <span className="breadcrumb-sep">/</span>
           <span className="breadcrumb-active">
@@ -105,11 +107,11 @@ const Topbar = ({
           <input
             type="text"
             className="search-input-field"
-            placeholder="Search drive by name, folder, tag..."
+            placeholder="Search drive files..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
-          {searchQuery ? (
+          {searchQuery && (
             <button
               type="button"
               className="search-clear-btn"
@@ -118,26 +120,35 @@ const Topbar = ({
             >
               <X size={14} />
             </button>
-          ) : (
-            <span className="search-shortcut-badge">⌘K</span>
           )}
         </div>
       </div>
 
       {/* Topbar Right: Actions, Notifications, Profile */}
       <div className="topbar-right">
-        {/* Sync Status Badge */}
-        <div className="sync-status-badge">
-          <span className="sync-pulse-dot" />
-          <span>Synced</span>
-        </div>
+        {/* Active Google Drive Indicator Pill */}
+        <button
+          type="button"
+          className="topbar-google-pill"
+          onClick={onOpenConnectGoogleModal}
+          title="Manage connected Google Drives"
+        >
+          <GoogleIcon size={14} />
+          <span>
+            {connectedAccounts.length === 0
+              ? '+ Connect Google Drive'
+              : selectedAccountId === 'all'
+              ? `${connectedAccounts.length} Connected ${connectedAccounts.length === 1 ? 'Drive' : 'Drives'}`
+              : (connectedAccounts.find(a => a.id === selectedAccountId)?.name || 'Google Drive')}
+          </span>
+        </button>
 
         {/* Quick Upload Button */}
         <button
           type="button"
           className="topbar-icon-action-btn"
           onClick={onOpenUploadModal}
-          title="Upload file or folder"
+          title="Upload to Google Drive"
           aria-label="Upload"
         >
           <UploadCloud size={18} />
@@ -156,50 +167,19 @@ const Topbar = ({
             aria-label="View notifications"
           >
             <Bell size={18} />
-            <span className="unread-indicator-dot" />
           </button>
 
           {notificationsOpen && (
             <div className="topbar-popover-dropdown notifications-panel">
               <div className="notification-header">
-                <span>Drive Activity</span>
-                <span style={{ fontSize: '0.74rem', color: '#38bdf8', cursor: 'pointer' }}>
-                  Mark all read
-                </span>
+                <span>Notifications</span>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '4px 0' }}>
-                <div className="notification-item notification-item-unread">
-                  <FileText size={18} color="#60a5fa" style={{ flexShrink: 0, marginTop: 2 }} />
-                  <div>
-                    <strong style={{ color: '#fff', display: 'block' }}>Sarah Jenkins shared a folder</strong>
-                    <span>"Quarterly_Assets_2026" was shared with edit rights</span>
-                    <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                      10 mins ago
-                    </span>
-                  </div>
-                </div>
-
-                <div className="notification-item">
-                  <CheckCircle2 size={18} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
-                  <div>
-                    <strong style={{ color: '#fff', display: 'block' }}>Encrypted Sync Complete</strong>
-                    <span>All 148 drive files verified and securely backed up</span>
-                    <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                      1 hour ago
-                    </span>
-                  </div>
-                </div>
-
-                <div className="notification-item">
-                  <Trash2 size={18} color="#fb7185" style={{ flexShrink: 0, marginTop: 2 }} />
-                  <div>
-                    <strong style={{ color: '#fff', display: 'block' }}>Trash clean warning</strong>
-                    <span>5 files in trash will be permanently purged in 24 days</span>
-                    <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                      Yesterday
-                    </span>
-                  </div>
-                </div>
+              <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <Bell size={24} style={{ marginBottom: 8, opacity: 0.4 }} />
+                <p style={{ margin: 0, fontSize: '0.84rem' }}>No new notifications</p>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                  Drive activity updates will appear here
+                </span>
               </div>
             </div>
           )}
@@ -214,70 +194,49 @@ const Topbar = ({
               setUserMenuOpen(!userMenuOpen);
               setNotificationsOpen(false);
             }}
-            aria-label="User account menu"
+            title="User Settings"
           >
-            <div className="user-avatar-pill" style={{ width: 30, height: 30, minWidth: 30, fontSize: '0.78rem' }}>
+            <div className="topbar-user-avatar">
               <span>{userInitials}</span>
-              <span className="user-status-dot" />
             </div>
-            <span className="topbar-user-name">{currentUser?.fullName || 'Alex Rivera'}</span>
-            <ChevronDown size={14} color="var(--text-secondary)" />
+            <div className="topbar-user-meta">
+              <span className="user-name">{displayName}</span>
+              <span className="user-role">{currentUser?.email || 'Logged in'}</span>
+            </div>
+            <ChevronDown size={14} color="var(--text-muted)" />
           </button>
 
           {userMenuOpen && (
-            <div className="topbar-popover-dropdown user-menu-panel">
-              <div className="user-menu-header">
-                <div className="user-menu-name">{currentUser?.fullName || 'Alex Rivera'}</div>
-                <div className="user-menu-email">{currentUser?.email || 'alex@cloudvault.io'}</div>
-                <span className="brand-badge-pro" style={{ display: 'inline-block', marginTop: 6 }}>
-                  {currentUser?.role || 'PRO MEMBER'}
-                </span>
+            <div className="topbar-popover-dropdown profile-dropdown-menu">
+              <div className="profile-dropdown-header">
+                <span className="user-full-name">{displayName}</span>
+                <span className="user-email">{currentUser?.email || 'No email set'}</span>
               </div>
 
-              <div style={{ padding: '4px 0' }}>
+              <div className="dropdown-menu-list">
                 <button
                   type="button"
-                  className="user-menu-link"
+                  className="dropdown-menu-item"
                   onClick={() => {
                     setUserMenuOpen(false);
-                    navigate('/dashboard/my-files');
+                    onOpenConnectGoogleModal();
                   }}
                 >
-                  <Folder size={16} />
-                  <span>My Cloud Storage</span>
-                </button>
-                <button
-                  type="button"
-                  className="user-menu-link"
-                  onClick={() => {
-                    setUserMenuOpen(false);
-                    alert('Security encryption: Zero-Knowledge AES-256 enabled.');
-                  }}
-                >
-                  <ShieldCheck size={16} />
-                  <span>Security & Keys</span>
-                </button>
-                <button
-                  type="button"
-                  className="user-menu-link"
-                  onClick={() => {
-                    setUserMenuOpen(false);
-                    alert('Account Settings: Vault preferences & sync parameters.');
-                  }}
-                >
-                  <Settings size={16} />
-                  <span>Account Settings</span>
-                </button>
-                <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '6px 0' }} />
-                <button
-                  type="button"
-                  className="user-menu-link logout-link"
-                  onClick={handleLogout}
-                >
-                  <LogOut size={16} />
-                  <span>Sign Out</span>
+                  <GoogleIcon size={14} />
+                  <span>Linked Google Accounts ({connectedAccounts.length})</span>
                 </button>
               </div>
+
+              <div className="profile-dropdown-divider" />
+
+              <button
+                type="button"
+                className="dropdown-menu-item logout-item"
+                onClick={handleLogout}
+              >
+                <LogOut size={15} />
+                <span>Log Out</span>
+              </button>
             </div>
           )}
         </div>

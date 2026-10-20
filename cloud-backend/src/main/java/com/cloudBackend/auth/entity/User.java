@@ -23,11 +23,6 @@ public class User {
     @Column(nullable = false)
     private String role = "ROLE_USER";
 
-    @Column(nullable = false)
-    private Long storageUsed = 0L; // Bytes used
-
-    @Column(nullable = false)
-    private Long storageLimit = 10737418240L; // 10 GB default quota
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -94,21 +89,6 @@ public class User {
         this.role = role;
     }
 
-    public Long getStorageUsed() {
-        return storageUsed;
-    }
-
-    public void setStorageUsed(Long storageUsed) {
-        this.storageUsed = storageUsed;
-    }
-
-    public Long getStorageLimit() {
-        return storageLimit;
-    }
-
-    public void setStorageLimit(Long storageLimit) {
-        this.storageLimit = storageLimit;
-    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

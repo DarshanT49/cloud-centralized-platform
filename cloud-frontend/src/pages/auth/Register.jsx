@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import GoogleIcon from '../../components/GoogleIcon';
 import authService from '../../services/authService';
+import { googleAccountsService } from '../../services/googleAccountsService';
 import './Auth.css';
 
 const Register = () => {
@@ -96,6 +97,9 @@ const Register = () => {
         text: response.message || 'Account registered successfully in database! Redirecting to login...'
       });
 
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+      }
       if (response.user) {
         localStorage.setItem('currentUser', JSON.stringify(response.user));
       }
@@ -113,17 +117,31 @@ const Register = () => {
     }
   };
 
-  const handleGoogleAuth = () => {
+  const handleGoogleAuth = async () => {
     setIsLoading(true);
     setStatusMessage({
       type: 'success',
-      text: 'Signing up with Google Account...'
+      text: 'Redirecting to Google sign up...'
     });
 
-    setTimeout(() => {
+    try {
+      const data = await googleAccountsService.getAuthorizeUrl('personal');
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        setStatusMessage({
+          type: 'error',
+          text: data?.error || 'Failed to initialize Google Sign-up.'
+        });
+        setIsLoading(false);
+      }
+    } catch (err) {
+      setStatusMessage({
+        type: 'error',
+        text: err.message || 'Error communicating with server.'
+      });
       setIsLoading(false);
-      navigate('/dashboard');
-    }, 1400);
+    }
   };
 
   return (
@@ -138,7 +156,7 @@ const Register = () => {
           </div>
           <h1 className="auth-title">Create Account</h1>
           <p className="auth-subtitle">
-            Get 15 GB of encrypted cloud storage free forever
+            Unify and manage all your cloud drives in one secure place
           </p>
         </div>
 

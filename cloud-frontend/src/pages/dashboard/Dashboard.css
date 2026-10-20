@@ -1,0 +1,848 @@
+/* ==========================================================================
+   CloudVault Analytics Dashboard Styles
+   ========================================================================== */
+
+.analytics-dashboard {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Header & Action Bar
+   -------------------------------------------------------------------------- */
+.analytics-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.analytics-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.analytics-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.analytics-live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+    box-shadow: 0 0 12px #34d399;
+  }
+}
+
+.analytics-page-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.analytics-page-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.analytics-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Time Range Segment Control */
+.time-segment-control {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 2px;
+}
+
+.time-segment-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.time-segment-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.time-segment-btn.active {
+  background: var(--gradient-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   KPI Metric Cards Grid
+   -------------------------------------------------------------------------- */
+.kpi-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.kpi-card {
+  position: relative;
+  overflow: hidden;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+.kpi-card-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  filter: blur(50px);
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+.kpi-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kpi-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.kpi-trend-badge.positive {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.kpi-trend-badge.neutral {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.kpi-trend-badge.alert {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.kpi-value-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpi-title {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.kpi-main-number {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.kpi-meta-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Chart Section: Traffic Wave & Distribution Donut
+   -------------------------------------------------------------------------- */
+.analytics-main-charts-row {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 24px;
+}
+
+.chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.chart-card-title {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-card-subtitle {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin: 2px 0 0;
+}
+
+.chart-type-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chart-filter-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.chart-filter-chip.active {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(59, 130, 246, 0.45);
+  color: #60a5fa;
+}
+
+/* Interactive SVG Area Chart Canvas */
+.svg-chart-container {
+  width: 100%;
+  position: relative;
+  user-select: none;
+}
+
+.svg-chart-svg {
+  width: 100%;
+  height: 250px;
+  overflow: visible;
+}
+
+.chart-grid-line {
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-dasharray: 4 4;
+}
+
+.chart-axis-label {
+  fill: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-sans);
+}
+
+.chart-data-point {
+  transition: r 0.15s ease, stroke-width 0.15s ease;
+  cursor: pointer;
+}
+
+.chart-data-point:hover {
+  r: 6;
+  stroke-width: 3;
+}
+
+/* Hover Tooltip */
+.chart-hover-indicator {
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  pointer-events: none;
+}
+
+.chart-tooltip-box {
+  position: absolute;
+  top: 10px;
+  pointer-events: none;
+  background: rgba(14, 19, 31, 0.94);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  backdrop-filter: blur(12px);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  z-index: 20;
+  min-width: 170px;
+  transform: translateX(-50%);
+  transition: left 0.1s ease-out;
+}
+
+.tooltip-date {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 4px;
+}
+
+.tooltip-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  margin: 3px 0;
+}
+
+.tooltip-metric-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.tooltip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.tooltip-metric-val {
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Donut Chart Layout */
+.donut-chart-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.donut-visual-container {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.donut-segment {
+  fill: transparent;
+  stroke-width: 18;
+  transition: stroke-width 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.donut-segment:hover {
+  stroke-width: 22;
+  filter: brightness(1.2);
+}
+
+.donut-center-content {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut-center-value {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.donut-center-label {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.category-legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.category-legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.category-legend-item:hover,
+.category-legend-item.highlighted {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(59, 130, 246, 0.35);
+  transform: translateX(3px);
+}
+
+.legend-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-color-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-name {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.legend-files-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.legend-item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.legend-size {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.legend-percentage {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   Secondary Row: Folder Utilization & AI Recommendations
+   -------------------------------------------------------------------------- */
+.analytics-secondary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* Folder Utilization Bars */
+.folder-util-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.folder-util-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.folder-util-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.folder-util-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.folder-dot-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.folder-util-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.folder-util-stats {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.folder-progress-track {
+  height: 7px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.folder-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Recommendations Card */
+.recommendation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recommendation-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+}
+
+.recommendation-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(59, 130, 246, 0.25);
+  transform: translateY(-2px);
+}
+
+.rec-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rec-content {
+  flex: 1;
+}
+
+.rec-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.rec-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.rec-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.rec-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+
+.rec-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* --------------------------------------------------------------------------
+   Consumers & Activity Log Row
+   -------------------------------------------------------------------------- */
+.analytics-tertiary-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+}
+
+/* Heaviest Files Table */
+.heaviest-table-container {
+  overflow-x: auto;
+}
+
+.heaviest-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.heaviest-table th {
+  padding: 12px 16px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.heaviest-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  vertical-align: middle;
+}
+
+.heaviest-file-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.heaviest-file-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.heaviest-file-name {
+  color: #fff;
+  font-weight: 600;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.heaviest-file-folder {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.size-meter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.size-mini-track {
+  width: 70px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.size-mini-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-full);
+}
+
+/* Security & Event Audit Feed */
+.audit-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.audit-feed-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.15s ease;
+}
+
+.audit-feed-item:hover {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.audit-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.audit-content {
+  flex: 1;
+}
+
+.audit-title {
+  color: #ffffff;
+  font-size: 0.83rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.audit-meta {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Media Queries
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .kpi-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .analytics-main-charts-row,
+  .analytics-secondary-row,
+  .analytics-tertiary-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .kpi-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .analytics-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .analytics-actions-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .time-segment-control {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .donut-chart-wrapper {
+    flex-direction: column;
+  }
+}

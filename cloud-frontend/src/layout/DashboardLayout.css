@@ -1015,3 +1015,422 @@
     display: none;
   }
 }
+
+/* ==========================================================================
+   Multi-Google Account Management Styles
+   ========================================================================== */
+
+/* Sidebar Google Account Switcher */
+.google-account-switcher-box {
+  padding: 12px 14px 6px;
+  position: relative;
+}
+
+.dashboard-root.sidebar-collapsed .google-account-switcher-box {
+  padding: 10px 8px 6px;
+}
+
+.switcher-toggle-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+.switcher-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(66, 133, 244, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-root.sidebar-collapsed .switcher-toggle-btn {
+  justify-content: center;
+  padding: 10px;
+}
+
+.switcher-account-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.account-avatar-wrapper {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  overflow: visible;
+}
+
+.account-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.account-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4285F4 0%, #34A853 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.google-brand-indicator {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  background: #0f172a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.switcher-account-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dashboard-root.sidebar-collapsed .switcher-account-text,
+.dashboard-root.sidebar-collapsed .switcher-chevron {
+  display: none;
+}
+
+.account-display-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-display-email {
+  font-size: 0.73rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-quota-micro-bar {
+  margin-top: 4px;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.account-quota-micro-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: 99px;
+}
+
+/* Dropdown Menu */
+.google-account-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 14px;
+  right: 14px;
+  background: #0e1322;
+  border: 1px solid rgba(66, 133, 244, 0.35);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.7), 0 0 20px rgba(66, 133, 244, 0.15);
+  backdrop-filter: blur(20px);
+  z-index: 100;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: slideDown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dashboard-root.sidebar-collapsed .google-account-dropdown {
+  left: 64px;
+  right: auto;
+  width: 290px;
+}
+
+.dropdown-header-title {
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.account-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.account-select-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.account-select-option.active {
+  background: rgba(66, 133, 244, 0.15);
+  border-color: rgba(66, 133, 244, 0.4);
+}
+
+.account-option-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  flex: 1;
+}
+
+.account-option-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.account-option-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-option-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.account-option-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 99px;
+}
+
+.account-dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 4px 0;
+}
+
+.btn-add-google-account {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(66, 133, 244, 0.1);
+  border: 1px dashed rgba(66, 133, 244, 0.4);
+  color: #60a5fa;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-add-google-account:hover {
+  background: rgba(66, 133, 244, 0.2);
+  border-color: #60a5fa;
+  color: #fff;
+}
+
+/* Topbar Google Badge */
+.topbar-google-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.topbar-google-pill:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(66, 133, 244, 0.4);
+}
+
+/* File Table Google Account Pill */
+.google-acc-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(66, 133, 244, 0.12);
+  border: 1px solid rgba(66, 133, 244, 0.25);
+  color: #93c5fd;
+  white-space: nowrap;
+}
+
+/* Cross-Drive Transfer Modal */
+.transfer-direction-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.transfer-source-box,
+.transfer-target-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.transfer-arrow-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Connected Google Drives Grid (Analytics) */
+.connected-drives-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.drive-account-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.drive-account-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(66, 133, 244, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.drive-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.drive-card-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drive-card-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.drive-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.drive-card-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.drive-card-email {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.drive-progress-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.drive-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.drive-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+

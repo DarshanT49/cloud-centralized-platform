@@ -21,6 +21,29 @@ export const authService = {
   },
 
   /**
+   * Authenticate a user with email and password
+   * @param {{ email: string, password: string }} credentials
+   * @returns {Promise<{ success: boolean, message: string, user: object, token: string }>}
+   */
+  async login(credentials) {
+    return apiRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: credentials.email.trim(),
+        password: credentials.password
+      })
+    });
+  },
+
+  /**
+   * Sign out current user
+   */
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+  },
+
+  /**
    * Check backend server health
    */
   async checkHealth() {

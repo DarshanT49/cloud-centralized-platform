@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
+import GoogleIcon from '../components/GoogleIcon';
 import {
   Cloud,
   Folder,
@@ -13,48 +14,44 @@ import {
   FileUp,
   ChevronLeft,
   ChevronRight,
-  X
+  ChevronDown,
+  X,
+  LayoutDashboard,
+  Layers,
+  Check
 } from 'lucide-react';
 
 const navItems = [
   {
-    name: 'My Files',
+    name: 'Dashboard',
+    path: '/dashboard',
+    icon: LayoutDashboard
+  },
+  {
+    name: 'Google Drive Files',
     path: '/dashboard/my-files',
-    fallbackPath: '/dashboard',
-    icon: Folder,
-    badge: '148'
+    icon: Folder
   },
   {
-    name: 'Recent',
+    name: 'Recent Activity',
     path: '/dashboard/recent',
-    icon: Clock,
-    badge: '12'
+    icon: Clock
   },
   {
-    name: 'Shared',
+    name: 'Shared with Me',
     path: '/dashboard/shared',
-    icon: Users,
-    badge: '4'
+    icon: Users
   },
   {
-    name: 'Starred',
+    name: 'Starred Files',
     path: '/dashboard/starred',
-    icon: Star,
-    badge: null
+    icon: Star
   },
   {
-    name: 'Trash',
+    name: 'Trash & Bin',
     path: '/dashboard/trash',
-    icon: Trash2,
-    badge: '5'
+    icon: Trash2
   }
-];
-
-const quickFolders = [
-  { name: 'Work Documents', color: '#60a5fa' },
-  { name: 'Design Assets & UI', color: '#c084fc' },
-  { name: 'Video Productions', color: '#fb7185' },
-  { name: 'Personal Backups', color: '#34d399' }
 ];
 
 const Sidebar = ({
@@ -62,18 +59,30 @@ const Sidebar = ({
   onToggleCollapse,
   mobileOpen,
   onCloseMobile,
-  currentUser,
-  onOpenUploadModal,
-  onOpenNewFolderModal
+  connectedAccounts = [],
+  selectedAccountId = 'all',
+  onSelectAccount = () => {},
+  activeAccount,
+  onOpenConnectGoogleModal = () => {},
+  onOpenUploadModal = () => {},
+  onOpenNewFolderModal = () => {}
 }) => {
   const [showUploadMenu, setShowUploadMenu] = useState(false);
+  const [showAccountDropdown, setShowAccountDropdown] = useState(false);
+  const accountDropdownRef = useRef(null);
 
-  const userInitials = (currentUser?.fullName || 'Alex Rivera')
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+  // Close account dropdown on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (accountDropdownRef.current && !accountDropdownRef.current.contains(e.target)) {
+        setShowAccountDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  const hasAccounts = connectedAccounts.length > 0;
 
   return (
     <aside className={`dashboard-sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
@@ -87,7 +96,6 @@ const Sidebar = ({
             <span className="brand-title">
               Cloud<span className="gradient-text">Vault</span>
             </span>
-            <span className="brand-badge-pro">PRO</span>
           </div>
         </Link>
 
@@ -114,6 +122,158 @@ const Sidebar = ({
         </button>
       </div>
 
+      {/* Google Multi-Account Switcher */}
+      <div className="google-account-switcher-box" ref={accountDropdownRef}>
+        <button
+          type="button"
+          className="switcher-toggle-btn"
+          onClick={() => setShowAccountDropdown(!showAccountDropdown)}
+          title="Switch Active Google Account or View All"
+        >
+          <div className="switcher-account-info">
+            <div className="account-avatar-wrapper">
+              {!hasAccounts ? (
+                <div className="account-avatar-fallback">
+                  <GoogleIcon size={16} />
+                </div>
+              ) : selectedAccountId === 'all' ? (
+                <div className="account-avatar-fallback">
+                  <Layers size={16} />
+                </div>
+              ) : activeAccount?.avatar ? (
+                <img
+                  src={activeAccount.avatar}
+                  alt={activeAccount.name}
+                  className="account-avatar-img"
+                />
+              ) : (
+                <div className="account-avatar-fallback">
+                  {activeAccount?.name?.[0] || 'G'}
+                </div>
+              )}
+            </div>
+
+            <div className="switcher-account-text">
+              <span className="account-display-name">
+                {!hasAccounts
+                  ? 'Connect Google Drive'
+                  : selectedAccountId === 'all'
+                  ? 'All Google Accounts'
+                  : activeAccount?.name || 'Google Drive'}
+              </span>
+              <span className="account-display-email">
+                {!hasAccounts
+                  ? 'Click to link account'
+                  : selectedAccountId === 'all'
+                  ? `${connectedAccounts.length} Connected Drives`
+                  : activeAccount?.email || 'Connected'}
+              </span>
+            </div>
+          </div>
+
+          <ChevronDown
+            size={14}
+            className="switcher-chevron"
+            style={{
+              transition: 'transform 0.2s ease',
+              transform: showAccountDropdown ? 'rotate(180deg)' : 'none',
+              color: 'var(--text-muted)'
+            }}
+          />
+        </button>
+
+        {/* Account Switcher Dropdown */}
+        {showAccountDropdown && (
+          <div className="account-switcher-dropdown">
+            <div className="account-dropdown-header">
+              <span>Google Accounts</span>
+              <button
+                type="button"
+                className="btn-dropdown-add"
+                onClick={() => {
+                  setShowAccountDropdown(false);
+                  onOpenConnectGoogleModal();
+                }}
+              >
+                + Connect
+              </button>
+            </div>
+
+            {hasAccounts && (
+              <button
+                type="button"
+                className={`account-select-option ${selectedAccountId === 'all' ? 'active' : ''}`}
+                onClick={() => {
+                  onSelectAccount('all');
+                  setShowAccountDropdown(false);
+                }}
+              >
+                <div className="account-option-left">
+                  <div className="account-avatar-wrapper" style={{ width: 26, height: 26, minWidth: 26 }}>
+                    <div className="account-avatar-fallback" style={{ fontSize: '0.75rem' }}>
+                      <Layers size={14} />
+                    </div>
+                  </div>
+                  <div className="account-option-meta">
+                    <span className="account-option-name">All Drives Aggregated</span>
+                    <span className="account-option-sub">
+                      {connectedAccounts.length} Connected {connectedAccounts.length === 1 ? 'Drive' : 'Drives'}
+                    </span>
+                  </div>
+                </div>
+                {selectedAccountId === 'all' && <Check size={14} color="#60a5fa" />}
+              </button>
+            )}
+
+            {connectedAccounts.map(account => {
+              const isSelected = selectedAccountId === account.id;
+              return (
+                <button
+                  key={account.id}
+                  type="button"
+                  className={`account-select-option ${isSelected ? 'active' : ''}`}
+                  onClick={() => {
+                    onSelectAccount(account.id);
+                    setShowAccountDropdown(false);
+                  }}
+                >
+                  <div className="account-option-left">
+                    <div className="account-avatar-wrapper" style={{ width: 26, height: 26, minWidth: 26 }}>
+                      {account.avatar ? (
+                        <img src={account.avatar} alt={account.name} className="account-avatar-img" />
+                      ) : (
+                        <div className="account-avatar-fallback" style={{ fontSize: '0.7rem' }}>
+                          {account.name?.[0] || 'G'}
+                        </div>
+                      )}
+                    </div>
+                    <div className="account-option-meta">
+                      <span className="account-option-name">{account.name}</span>
+                      <span className="account-option-sub">{account.email}</span>
+                    </div>
+                  </div>
+                  {isSelected && <Check size={14} color="#60a5fa" />}
+                </button>
+              );
+            })}
+
+            <div className="account-dropdown-divider" />
+
+            <button
+              type="button"
+              className="btn-add-google-account"
+              onClick={() => {
+                setShowAccountDropdown(false);
+                onOpenConnectGoogleModal();
+              }}
+            >
+              <GoogleIcon size={14} />
+              <span>+ Connect Google Drive</span>
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Main Upload / Create Action Button */}
       <div className="sidebar-action-wrap">
         <button
@@ -138,18 +298,7 @@ const Sidebar = ({
               }}
             >
               <FileUp size={16} color="#38bdf8" />
-              <span>Upload Files</span>
-            </button>
-            <button
-              type="button"
-              className="action-menu-item"
-              onClick={() => {
-                setShowUploadMenu(false);
-                onOpenUploadModal();
-              }}
-            >
-              <UploadCloud size={16} color="#818cf8" />
-              <span>Upload Folder</span>
+              <span>Upload to Google Drive</span>
             </button>
             <button
               type="button"
@@ -160,7 +309,7 @@ const Sidebar = ({
               }}
             >
               <FolderPlus size={16} color="#34d399" />
-              <span>New Folder</span>
+              <span>New Drive Folder</span>
             </button>
           </div>
         )}
@@ -168,9 +317,8 @@ const Sidebar = ({
 
       {/* Sidebar Nav Items */}
       <div className="sidebar-nav-container">
-        {/* Core Menu */}
         <div>
-          <div className="sidebar-section-title">Files & Drive</div>
+          <div className="sidebar-section-title">Navigation</div>
           <ul className="sidebar-menu-list">
             {navItems.map(item => {
               const Icon = item.icon;
@@ -178,11 +326,9 @@ const Sidebar = ({
                 <li key={item.name} className="sidebar-menu-item">
                   <NavLink
                     to={item.path}
+                    end={item.path === '/dashboard'}
                     onClick={onCloseMobile}
-                    className={({ isActive }) => {
-                      const active = isActive || (item.fallbackPath && window.location.pathname === item.fallbackPath);
-                      return `sidebar-menu-link ${active ? 'active' : ''}`;
-                    }}
+                    className={({ isActive }) => `sidebar-menu-link ${isActive ? 'active' : ''}`}
                     title={collapsed ? item.name : undefined}
                   >
                     <div className="menu-link-main">
@@ -191,39 +337,13 @@ const Sidebar = ({
                       </div>
                       <span className="menu-link-text">{item.name}</span>
                     </div>
-                    {item.badge && <span className="menu-badge">{item.badge}</span>}
                   </NavLink>
                 </li>
               );
             })}
           </ul>
         </div>
-
-        {/* Quick Folders Tag Group */}
-        {!collapsed && (
-          <div>
-            <div className="sidebar-section-title">Favorite Folders</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {quickFolders.map(folder => (
-                <NavLink
-                  key={folder.name}
-                  to={`/dashboard/my-files?folder=${encodeURIComponent(folder.name)}`}
-                  className="folder-pill-link"
-                  onClick={onCloseMobile}
-                >
-                  <span
-                    className="folder-color-dot"
-                    style={{ backgroundColor: folder.color }}
-                  />
-                  <span>{folder.name}</span>
-                </NavLink>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
-
-
     </aside>
   );
 };

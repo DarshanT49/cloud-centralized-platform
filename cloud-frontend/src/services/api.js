@@ -12,8 +12,10 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 export async function apiRequest(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
+  const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...(options.headers || {})
   };
 

@@ -1,10 +1,12 @@
 package com.cloudBackend.auth.service;
 
 import com.cloudBackend.auth.dto.AuthResponse;
+import com.cloudBackend.auth.dto.LoginRequest;
 import com.cloudBackend.auth.dto.RegisterRequest;
 import com.cloudBackend.auth.dto.UserSummaryDto;
 import com.cloudBackend.auth.entity.User;
 import com.cloudBackend.auth.repository.UserRepository;
+import com.cloudBackend.config.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,10 +16,12 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -37,21 +41,44 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(normalizedEmail);
         user.setPassword(hashedPassword);
         user.setRole("ROLE_USER");
-        user.setStorageUsed(0L);
-        user.setStorageLimit(10737418240L); // 10 GB initial cloud storage
 
         User savedUser = userRepository.save(user);
+
+        String token = jwtService.generateToken(savedUser);
 
         UserSummaryDto userSummary = new UserSummaryDto(
                 savedUser.getId(),
                 savedUser.getFullName(),
                 savedUser.getEmail(),
                 savedUser.getRole(),
-                savedUser.getStorageUsed(),
-                savedUser.getStorageLimit(),
                 savedUser.getCreatedAt()
         );
 
-        return new AuthResponse(true, "Account created successfully!", userSummary);
+        return new AuthResponse(true, "Account created successfully!", userSummary, token);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthResponse login(LoginRequest request) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email address or password."));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Invalid email address or password.");
+        }
+
+        String token = jwtService.generateToken(user);
+
+        UserSummaryDto userSummary = new UserSummaryDto(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole(),
+                user.getCreatedAt()
+        );
+
+        return new AuthResponse(true, "Welcome back, " + user.getFullName() + "!", userSummary, token);
     }
 }

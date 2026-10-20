@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import {
   FileText,
@@ -6,17 +6,11 @@ import {
   Film,
   Archive,
   Search,
-  Share2
+  Share2,
+  ExternalLink,
+  PlusCircle
 } from 'lucide-react';
-
-const initialRecentFiles = [
-  { id: 1, name: 'Project_Alpha_Blueprint.pdf', size: '8.4 MB', type: 'doc', date: 'Today, 2:40 PM' },
-  { id: 2, name: 'Hero_Mockup_Retina_Render.png', size: '14.2 MB', type: 'image', date: 'Today, 11:15 AM' },
-  { id: 3, name: 'Annual_Financial_Model_2026.xlsx', size: '4.1 MB', type: 'sheet', date: 'Yesterday, 4:20 PM' },
-  { id: 4, name: 'Client_Demo_Recording_1080p.mp4', size: '412.0 MB', type: 'video', date: 'Oct 05, 2026' },
-  { id: 5, name: 'Source_Code_Archive.zip', size: '85.4 MB', type: 'archive', date: 'Oct 01, 2026' },
-  { id: 6, name: 'Product_Roadmap_Q4.pdf', size: '3.6 MB', type: 'doc', date: 'Sep 28, 2026' }
-];
+import GoogleIcon from '../../components/GoogleIcon';
 
 const getFileIcon = (type) => {
   switch (type) {
@@ -35,17 +29,26 @@ const getFileIcon = (type) => {
 
 const Recent = () => {
   const outletCtx = useOutletContext() || {};
-  const { searchQuery = '', triggerToast = () => {} } = outletCtx;
-  const [recentFiles] = useState(initialRecentFiles);
+  const {
+    searchQuery = '',
+    triggerToast = () => {},
+    googleFiles = [],
+    connectedAccounts = [],
+    onOpenConnectGoogleModal = () => {}
+  } = outletCtx;
 
   const copyShareLink = (fileName) => {
     navigator.clipboard?.writeText(`https://cloudvault.app/share/${encodeURIComponent(fileName)}`);
     triggerToast('Encrypted share link copied to clipboard!');
   };
 
-  const filtered = recentFiles.filter(f =>
-    f.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Recent files derived from googleFiles
+  const filtered = useMemo(() => {
+    return googleFiles
+      .filter(f => !f.trashed)
+      .filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()))
+      .slice(0, 15);
+  }, [googleFiles, searchQuery]);
 
   return (
     <div className="recent-page">
@@ -54,16 +57,32 @@ const Recent = () => {
           Recent <span className="gradient-text">Activity</span>
         </h1>
         <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-          Recently opened, uploaded, or updated files in your vault
+          Recently modified, synchronized, or accessed files across your connected Google Drives
         </p>
       </div>
 
-      {filtered.length === 0 ? (
+      {connectedAccounts.length === 0 ? (
+        <div className="glass-panel" style={{ padding: '60px 24px', textAlign: 'center' }}>
+          <GoogleIcon size={44} style={{ marginBottom: 14 }} />
+          <h3 style={{ color: '#fff', fontSize: '1.15rem', marginBottom: 6 }}>No Google Accounts Linked</h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.86rem', maxWidth: 440, margin: '0 auto 20px' }}>
+            Connect your Google accounts to view recent file activity across all your personal and workspace drives in real-time.
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={onOpenConnectGoogleModal}
+          >
+            <PlusCircle size={16} />
+            <span>Connect Google Drive</span>
+          </button>
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="glass-panel" style={{ padding: '48px 20px', textAlign: 'center' }}>
           <Search size={36} color="var(--text-muted)" style={{ marginBottom: 12 }} />
           <h3 style={{ color: '#fff', fontSize: '1rem', marginBottom: 4 }}>No recent files found</h3>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>
-            {searchQuery ? `No files match "${searchQuery}"` : 'Files you interact with will appear here.'}
+            {searchQuery ? `No files match "${searchQuery}"` : 'Files in your connected Google drives will appear here.'}
           </p>
         </div>
       ) : (
@@ -72,6 +91,7 @@ const Recent = () => {
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
                 <th style={{ padding: '14px 20px', fontWeight: 600 }}>File Name</th>
+                <th style={{ padding: '14px 20px', fontWeight: 600 }}>Google Drive</th>
                 <th style={{ padding: '14px 20px', fontWeight: 600 }}>Last Modified</th>
                 <th style={{ padding: '14px 20px', fontWeight: 600 }}>Size</th>
                 <th style={{ padding: '14px 20px', fontWeight: 600, textAlign: 'right' }}>Actions</th>
@@ -90,7 +110,40 @@ const Recent = () => {
                 >
                   <td style={{ padding: '14px 20px', color: '#fff', display: 'flex', alignItems: 'center', gap: 12 }}>
                     {getFileIcon(f.type)}
-                    <span style={{ fontWeight: 500 }}>{f.name}</span>
+                    {f.webViewLink ? (
+                      <a
+                        href={f.webViewLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: '#fff', textDecoration: 'none', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = '#60a5fa'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = '#fff'; }}
+                        title="Open in Google Drive"
+                      >
+                        <span>{f.name}</span>
+                        <ExternalLink size={12} color="var(--text-muted)" />
+                      </a>
+                    ) : (
+                      <span style={{ fontWeight: 500 }}>{f.name}</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <span
+                      style={{
+                        padding: '3px 8px',
+                        borderRadius: 4,
+                        fontSize: '0.74rem',
+                        fontWeight: 600,
+                        background: 'rgba(66, 133, 244, 0.12)',
+                        color: f.accountColor || '#60a5fa',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4
+                      }}
+                    >
+                      <GoogleIcon size={12} />
+                      {f.accountName || 'Google Drive'}
+                    </span>
                   </td>
                   <td style={{ padding: '14px 20px', color: '#38bdf8' }}>{f.date}</td>
                   <td style={{ padding: '14px 20px', color: 'var(--text-secondary)' }}>{f.size}</td>
@@ -98,17 +151,22 @@ const Recent = () => {
                     <div style={{ display: 'inline-flex', gap: 8 }}>
                       <button
                         type="button"
-                        onClick={() => triggerToast(`Opened file ${f.name}`)}
+                        onClick={() => f.webViewLink ? window.open(f.webViewLink, '_blank') : triggerToast(`Viewing ${f.name}`)}
                         style={{
                           background: 'rgba(59, 130, 246, 0.15)',
                           border: '1px solid rgba(59, 130, 246, 0.3)',
                           color: '#60a5fa',
                           padding: '6px 12px',
                           borderRadius: 'var(--radius-sm)',
-                          fontSize: '0.8rem'
+                          fontSize: '0.8rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          cursor: 'pointer'
                         }}
                       >
-                        Open
+                        <ExternalLink size={13} />
+                        <span>View</span>
                       </button>
                       <button
                         type="button"
